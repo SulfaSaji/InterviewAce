@@ -29,7 +29,7 @@ const LoginView = () => {
 
     localStorage.setItem("user_id", response.data.user_id);
     localStorage.setItem("name", response.data.name);
-
+    localStorage.setItem("email", email);
     navigate("/dashboard");
 
   } catch (error) {
