@@ -1,9 +1,22 @@
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
-
+import { useEffect, useState } from "react";
 function Dashboard() {
   const navigate = useNavigate();
+  const [name, setName] = useState("");
+const [email, setEmail] = useState("");
 
+useEffect(() => {
+  const storedName = localStorage.getItem("name");
+  const storedEmail = localStorage.getItem("email");
+
+  if (!storedName) {
+    navigate("/login");
+  } else {
+    setName(storedName);
+    setEmail(storedEmail);
+  }
+}, []);
   const containerStyle = {
     minHeight: "100vh",
     background: "linear-gradient(to right, #4facfe, #00f2fe)",
@@ -43,8 +56,8 @@ function Dashboard() {
 
         <div style={cardStyle}>
           <h3>Profile Details</h3>
-          <p>Name: Meera</p>
-          <p>Email: meera@email.com</p>
+           <p>Name: {name}</p>
+           <p>Email: {email}</p>
         </div>
 
         <button style={buttonStyle} onClick={() => navigate("/resume")}>
