@@ -1,22 +1,41 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import bgImage from '../assets/background.jpg'; // Correct import from src
-
+import axios from "axios";
 const LoginView = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (email.trim() && password.trim()) {
-      console.log('Login successful with:', email, password);
-      navigate('/dashboard');
-    } else {
-      alert('Please enter email and password');
-    }
-  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!email.trim() || !password.trim()) {
+    alert("Please enter email and password");
+    return;
+  }
+
+  try {
+    const response = await axios.post(
+      "http://127.0.0.1:5000/login",
+      {
+        email: email,
+        password: password,
+      }
+    );
+
+    alert(response.data.message);
+
+    localStorage.setItem("user_id", response.data.user_id);
+    localStorage.setItem("name", response.data.name);
+
+    navigate("/dashboard");
+
+  } catch (error) {
+    alert(error.response?.data?.message || "Login failed");
+  }
+};
 
   const containerStyle = {
     height: '100vh',

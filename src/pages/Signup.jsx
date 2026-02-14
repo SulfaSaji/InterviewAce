@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import bgImage from '../assets/background.jpg'; // import your background image
-
+import axios from "axios";
 const Signup = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -9,15 +9,32 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleSignup = (e) => {
-    e.preventDefault();
-    if (name.trim() && email.trim() && password.trim()) {
-      console.log('Signup successful:', { name, email, password });
-      navigate('/dashboard'); // navigate to dashboard after signup
-    } else {
-      alert('Please fill all fields');
-    }
-  };
+  const handleSignup = async (e) => {
+  e.preventDefault();
+
+  if (!name.trim() || !email.trim() || !password.trim()) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  try {
+    const response = await axios.post(
+      "http://127.0.0.1:5000/signup",
+      {
+        name: name,
+        email: email,
+        password: password,
+      }
+    );
+
+    alert(response.data.message);
+
+    navigate("/login");
+
+  } catch (error) {
+    alert(error.response?.data?.message || "Signup failed");
+  }
+};
 
   const containerStyle = {
     height: '100vh',
