@@ -5,7 +5,7 @@
 ![Flask](https://img.shields.io/badge/Flask-%23347deb.svg?logo=flask&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-3-orange.svg?logo=sqlite&logoColor=white)
 
-##🎯 Objective
+#🎯 Objective
 
 Interview AI Assistant is a web application that helps users prepare for job interviews by generating AI-based mock interview questions from their uploaded resumes.
 
