@@ -1,42 +1,46 @@
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import bgImage from "../assets/background.jpg";
 
 function MockQuestions() {
-  const navigate = useNavigate();
-  const [answer, setAnswer] = useState("");
+  const [questions, setQuestions] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const handleSubmit = () => {
-    const score = Math.floor(Math.random() * 40) + 60;
-    localStorage.setItem("score", score);
-    navigate("/dashboard");
+  useEffect(() => {
+    fetchQuestions();
+  }, []);
+
+  const fetchQuestions = async () => {
+    try {
+      const userId = localStorage.getItem("user_id");
+
+      const response = await axios.post(
+        "http://127.0.0.1:5000/generate-questions",
+        { user_id: userId }
+      );
+
+      setQuestions(response.data.questions);
+      setLoading(false);
+    } catch (error) {
+      setQuestions("Failed to generate questions.");
+      setLoading(false);
+    }
   };
 
   return (
     <div style={containerStyle}>
-      {/* Heading wrapper to prevent inherited styles */}
-      <div style={{ width: "100%", marginBottom: "30px" }}>
-        <h1 style={headingStyle}>Mock Interview</h1>
-      </div>
+      <h1 style={headingStyle}>Mock Interview</h1>
 
       <div style={cardStyle}>
-        <p style={questionStyle}>Questions :</p>
-        <textarea
-          rows="8"
-          style={textareaStyle}
-          value={answer}
-          onChange={(e) => setAnswer(e.target.value)}
-          placeholder="Type your answer here..."
-        />
+        {loading ? (
+          <p>Generating AI questions...</p>
+        ) : (
+          <pre style={{ whiteSpace: "pre-wrap" }}>{questions}</pre>
+        )}
       </div>
-
-      <button style={submitButtonStyle} onClick={handleSubmit}>
-        Submit
-      </button>
     </div>
   );
 }
-
 // Container: full page with background image, center content, no horizontal scroll
 const containerStyle = {
   minHeight: "100vh",
@@ -50,18 +54,16 @@ const containerStyle = {
   backgroundSize: "cover",
   backgroundPosition: "center",
   backgroundRepeat: "no-repeat",
-  color: "white", // default for other text
+  color: "white",
   overflowX: "hidden",
 };
 
-// Page heading in black
+// Page heading
 const headingStyle = {
   fontSize: "32px",
-  margin: 0,
+  marginBottom: "30px",
   textAlign: "center",
-  fontWeight: "bold",
-  color: "black", // force black color
-  textShadow: "none", // remove shadow
+  textShadow: "0 2px 6px rgba(14, 1, 1, 0.4)",
 };
 
 // White card containing question and textarea
@@ -75,7 +77,7 @@ const cardStyle = {
   boxShadow: "0 8px 25px rgba(0,0,0,0.2)",
   marginBottom: "30px",
   overflowY: "auto",
-  maxHeight: "400px",
+  maxHeight: "400px", // vertical scroll if content exceeds
   boxSizing: "border-box",
 };
 
