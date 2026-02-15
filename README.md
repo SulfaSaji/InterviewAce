@@ -1,11 +1,11 @@
-Interview Ace – AI-Powered Mock Interviews
+# Interview Ace – AI-Powered Mock Interviews
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue.svg)
 ![React](https://img.shields.io/badge/React-18%2B-blue.svg?logo=react&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-%23347deb.svg?logo=flask&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-3-orange.svg?logo=sqlite&logoColor=white)
 
-🎯 Objective
+##🎯 Objective
 
 Interview AI Assistant is a web application that helps users prepare for job interviews by generating AI-based mock interview questions from their uploaded resumes.
 
