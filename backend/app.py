@@ -15,20 +15,37 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///interview_ai.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# ---------------- DATABASE MODEL ----------------
+# ---------------- UPLOAD CONFIG ----------------
+UPLOAD_FOLDER = "uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# ---------------- GEMINI CONFIG ----------------
+genai.configure(api_key="AIzaSyD1D8Oqq5B_xUIDm4OFJoFmKLmLDXTR8TY")   
+
+# ---------------- DATABASE MODELS ----------------
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
 
+
+class Resume(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    resume_text = db.Column(db.Text, nullable=False)
+    uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
 # Create tables
 with app.app_context():
     db.create_all()
-   
+
+
+# ---------------- HOME ----------------
 @app.route("/")
 def home():
-    return "Backend with SQLite is running"
+    return "Backend is running"
 
 
 # ---------------- SIGNUP ----------------
@@ -45,6 +62,7 @@ def signup():
     new_user = User(name=name, email=email, password=password)
     db.session.add(new_user)
     db.session.commit()
+
     return jsonify({"message": "Signup successful"}), 200
 
 
@@ -56,8 +74,10 @@ def login():
     password = data.get("password")
 
     user = User.query.filter_by(email=email).first()
+
     if not user:
         return jsonify({"message": "User not found"}), 404
+
     if user.password != password:
         return jsonify({"message": "Incorrect password"}), 401
 
@@ -67,33 +87,6 @@ def login():
         "name": user.name
     }), 200
 
-# ---------------- UPLOAD RESUME ----------------
-@app.route("/upload_resume", methods=["POST"])
-def upload_resume():
-    if "file" not in request.files:
-        return jsonify({"message": "No file uploaded"}), 400
-
-    file = request.files["file"]
-    user_id = request.form.get("user_id")
-    if not user_id:
-        return jsonify({"message": "User ID not provided"}), 400
-
-    # Save file
-    upload_dir = "uploads"
-    os.makedirs(upload_dir, exist_ok=True)
-    filename = f"user_{user_id}_{file.filename}"
-    file_path = os.path.join(upload_dir, filename)
-    file.save(file_path)
-
-    # Extract text
-    content = extract_text(file_path)
-
-    # Save in DB
-    resume = Resume(user_id=user_id, filename=filename, content=content)
-    db.session.add(resume)
-    db.session.commit()
-
-    return jsonify({"message": "Resume uploaded successfully", "filename": filename}), 200
 
 # ---------------- UPLOAD RESUME ----------------
 @app.route("/upload-resume", methods=["POST"])
@@ -113,7 +106,6 @@ def upload_resume():
     file_path = os.path.join(UPLOAD_FOLDER, file.filename)
     file.save(file_path)
 
-    # Extract text from PDF
     extracted_text = ""
     try:
         reader = PdfReader(file_path)
@@ -122,7 +114,6 @@ def upload_resume():
     except Exception:
         return jsonify({"message": "Error reading PDF"}), 500
 
-    # Save extracted text to DB
     new_resume = Resume(
         user_id=int(user_id),
         resume_text=extracted_text
@@ -133,14 +124,17 @@ def upload_resume():
 
     return jsonify({"message": "Resume uploaded successfully"}), 200
 
-# ---------------- GENERATE QUESTIONS USING GEMINI ----------------
+
+# ---------------- GENERATE QUESTIONS ----------------
 @app.route("/generate-questions", methods=["POST"])
 def generate_questions():
     try:
         data = request.json
         user_id = data.get("user_id")
 
-        resume = Resume.query.filter_by(user_id=user_id).order_by(Resume.uploaded_at.desc()).first()
+        resume = Resume.query.filter_by(user_id=user_id)\
+                             .order_by(Resume.uploaded_at.desc())\
+                             .first()
 
         if not resume:
             return jsonify({"message": "No resume found"}), 404
@@ -153,7 +147,6 @@ def generate_questions():
         """
 
         model = genai.GenerativeModel("gemini-2.5-flash")
-
         response = model.generate_content(prompt)
 
         return jsonify({
@@ -161,8 +154,9 @@ def generate_questions():
         }), 200
 
     except Exception as e:
-        print("ERROR:", str(e))   # 👈 THIS WILL SHOW REAL ERROR IN TERMINAL
+        print("ERROR:", str(e))
         return jsonify({"message": "Failed to generate questions"}), 500
+
 
 # ---------------- RUN SERVER ----------------
 if __name__ == "__main__":
