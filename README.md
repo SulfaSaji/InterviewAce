@@ -5,7 +5,7 @@
 ![Flask](https://img.shields.io/badge/Flask-%23347deb.svg?logo=flask&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-3-orange.svg?logo=sqlite&logoColor=white)
 
-#🎯 Objective
+## 🎯 Objective
 
 Interview AI Assistant is a web application that helps users prepare for job interviews by generating AI-based mock interview questions from their uploaded resumes.
 
@@ -32,13 +32,13 @@ Responses are evaluated with a simple scoring system (0–100).
 Displays scores on a clean Analytics dashboard.
 Helps users track progress and identify areas for improvement.
 
-🧠 Conceptual Background
+## 🧠 Conceptual Background
 
 The application uses resume content to generate interview questions dynamically.
 Resume → Text Extraction → AI-Based Question Generation → User Answers → Score → Analytics
 This pipeline helps simulate real interview scenarios and provides measurable performance feedback.
 
-🧩 Tech Stack
+## 🧩 Tech Stack
 | Category        | Tools & Frameworks                                  |
 | --------------- | --------------------------------------------------- |
 | Frontend        | React.js, React Router, Axios                       |
@@ -47,7 +47,7 @@ This pipeline helps simulate real interview scenarios and provides measurable pe
 | File Processing | PyPDF2, python-docx                                 |
 | UI/UX           | CSS-in-JS, background images, responsive components |
 
-📊 Results & Insights
+## 📊 Results & Insights
 
 | Feature        | Description             | Outcome                       |
 | -------------- | ----------------------- | ----------------------------- |
@@ -56,7 +56,7 @@ This pipeline helps simulate real interview scenarios and provides measurable pe
 | Scoring        | 0–100 per attempt       | Users track performance       |
 | Analytics      | Visual dashboard        | Shows score summary           |
 
-🛠️ Usage
+## 🛠️ Usage
 
 1.Open the landing page → Sign up / Log in.
 2.Upload a resume in supported formats.
@@ -64,5 +64,5 @@ This pipeline helps simulate real interview scenarios and provides measurable pe
 4.Answer questions and submit.
 5.View score on Analytics dashboard
 
-👩‍💻 Project Team
+## 👩‍💻 Project Team
 Meera Krishna S,Sulfa Saji
