@@ -3,6 +3,8 @@ import { useState } from "react";
 import bgImage from "../assets/background.jpg";
 import axios from "axios";
 
+import bgImage from "../assets/background.jpg"; // background image
+
 function Resume() {
   const navigate = useNavigate();
   const [fileName, setFileName] = useState("");

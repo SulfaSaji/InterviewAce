@@ -1,50 +1,73 @@
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import bgImage from "../assets/background.jpg"; // background image
 import { useEffect, useState } from "react";
+
 function Dashboard() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
-const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("");
 
-useEffect(() => {
-  const storedName = localStorage.getItem("name");
-  const storedEmail = localStorage.getItem("email");
+  useEffect(() => {
+    const storedName = localStorage.getItem("name");
+    const storedEmail = localStorage.getItem("email");
 
-  if (!storedName) {
-    navigate("/login");
-  } else {
-    setName(storedName);
-    setEmail(storedEmail);
-  }
-}, []);
+    if (!storedName) {
+      navigate("/login");
+    } else {
+      setName(storedName);
+      setEmail(storedEmail);
+    }
+  }, [navigate]);
+
   const containerStyle = {
     minHeight: "100vh",
-    background: "linear-gradient(to right, #4facfe, #00f2fe)",
+    backgroundImage: `url(${bgImage})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
     color: "white",
+    paddingTop: "60px", // leave space for navbar
   };
 
   const contentStyle = {
-    padding: "40px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    padding: "20px",
+    backdropFilter: "brightness(0.85)", // improves readability
+    minHeight: "calc(100vh - 60px)",
   };
 
-  const cardStyle = {
-    background: "white",
+  const profileStyle = {
+    width: "90%", // almost full width
+    maxWidth: "800px",
+    backgroundColor: "rgba(255, 255, 255, 0.9)", // light transparent bg
     color: "#333",
-    padding: "20px",
-    borderRadius: "10px",
-    maxWidth: "400px",
-    marginBottom: "20px",
+    borderRadius: "20px",
+    padding: "30px",
+    textAlign: "center",
+    marginBottom: "40px",
+    boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
+  };
+
+  const buttonContainerStyle = {
+    display: "flex",
+    gap: "20px",
+    flexWrap: "wrap",
+    justifyContent: "center",
   };
 
   const buttonStyle = {
-    margin: "10px 10px 0 0",
-    padding: "10px 20px",
-    borderRadius: "6px",
+    padding: "15px 25px",
+    borderRadius: "10px",
     border: "none",
     backgroundColor: "#0077ff",
     color: "white",
     cursor: "pointer",
     fontWeight: "bold",
+    minWidth: "200px",
+    transition: "transform 0.2s",
   };
 
   return (
@@ -52,25 +75,40 @@ useEffect(() => {
       <Navbar />
 
       <div style={contentStyle}>
-        <h2>Dashboard</h2>
-
-        <div style={cardStyle}>
-          <h3>Profile Details</h3>
-           <p>Name: {name}</p>
-           <p>Email: {email}</p>
+        <div style={profileStyle}>
+          <h2>Profile Details</h2>
+          <p><strong>Name:</strong> {name}</p>
+          <p><strong>Email:</strong> {email}</p>
         </div>
 
-        <button style={buttonStyle} onClick={() => navigate("/resume")}>
-          Upload Resume
-        </button>
+        <div style={buttonContainerStyle}>
+          <button
+            style={buttonStyle}
+            onClick={() => navigate("/resume")}
+            onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+            onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
+          >
+            Upload Resume
+          </button>
 
-        <button style={buttonStyle} onClick={() => navigate("/mock")}>
-          Generate Mock Questions
-        </button>
+          <button
+            style={buttonStyle}
+            onClick={() => navigate("/mock")}
+            onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+            onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
+          >
+            Generate Mock Questions
+          </button>
 
-        <button style={buttonStyle} onClick={() => navigate("/analytics")}>
-          View Analytics
-        </button>
+          <button
+            style={buttonStyle}
+            onClick={() => navigate("/analytics")}
+            onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+            onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
+          >
+            View Analytics
+          </button>
+        </div>
       </div>
     </div>
   );

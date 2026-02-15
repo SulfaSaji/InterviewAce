@@ -10,41 +10,22 @@ import google.generativeai as genai
 app = Flask(__name__)
 CORS(app)
 
+# Configure SQLite Database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///interview_ai.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 db = SQLAlchemy(app)
-genai.configure(api_key="AIzaSyD1D8Oqq5B_xUIDm4OFJoFmKLmLDXTR8TY")
-# ---------------- DATABASE MODELS ----------------
+
+# ---------------- DATABASE MODEL ----------------
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
 
-
-class Resume(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, nullable=False)
-    resume_text = db.Column(db.Text, nullable=False)
-    uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-class Question(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, nullable=False)
-    question_text = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-# ---------------- CREATE TABLES ----------------
+# Create tables
 with app.app_context():
     db.create_all()
-
-# ---------------- UPLOAD CONFIG ----------------
-UPLOAD_FOLDER = "uploads"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-
-# ---------------- ROUTES ----------------
+   
 @app.route("/")
 def home():
     return "Backend with SQLite is running"
@@ -64,7 +45,6 @@ def signup():
     new_user = User(name=name, email=email, password=password)
     db.session.add(new_user)
     db.session.commit()
-
     return jsonify({"message": "Signup successful"}), 200
 
 
@@ -76,10 +56,8 @@ def login():
     password = data.get("password")
 
     user = User.query.filter_by(email=email).first()
-
     if not user:
         return jsonify({"message": "User not found"}), 404
-
     if user.password != password:
         return jsonify({"message": "Incorrect password"}), 401
 
@@ -89,6 +67,33 @@ def login():
         "name": user.name
     }), 200
 
+# ---------------- UPLOAD RESUME ----------------
+@app.route("/upload_resume", methods=["POST"])
+def upload_resume():
+    if "file" not in request.files:
+        return jsonify({"message": "No file uploaded"}), 400
+
+    file = request.files["file"]
+    user_id = request.form.get("user_id")
+    if not user_id:
+        return jsonify({"message": "User ID not provided"}), 400
+
+    # Save file
+    upload_dir = "uploads"
+    os.makedirs(upload_dir, exist_ok=True)
+    filename = f"user_{user_id}_{file.filename}"
+    file_path = os.path.join(upload_dir, filename)
+    file.save(file_path)
+
+    # Extract text
+    content = extract_text(file_path)
+
+    # Save in DB
+    resume = Resume(user_id=user_id, filename=filename, content=content)
+    db.session.add(resume)
+    db.session.commit()
+
+    return jsonify({"message": "Resume uploaded successfully", "filename": filename}), 200
 
 # ---------------- UPLOAD RESUME ----------------
 @app.route("/upload-resume", methods=["POST"])
@@ -161,4 +166,4 @@ def generate_questions():
 
 # ---------------- RUN SERVER ----------------
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host="127.0.0.1", port=5000)
