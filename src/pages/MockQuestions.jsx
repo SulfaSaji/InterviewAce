@@ -1,15 +1,30 @@
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import bgImage from "../assets/background.jpg";
 
 function MockQuestions() {
-  const navigate = useNavigate();
-  const [answer, setAnswer] = useState("");
+  const [questions, setQuestions] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const handleSubmit = () => {
-    const score = Math.floor(Math.random() * 40) + 60;
-    localStorage.setItem("score", score);
-    navigate("/dashboard");
+  useEffect(() => {
+    fetchQuestions();
+  }, []);
+
+  const fetchQuestions = async () => {
+    try {
+      const userId = localStorage.getItem("user_id");
+
+      const response = await axios.post(
+        "http://127.0.0.1:5000/generate-questions",
+        { user_id: userId }
+      );
+
+      setQuestions(response.data.questions);
+      setLoading(false);
+    } catch (error) {
+      setQuestions("Failed to generate questions.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -17,23 +32,15 @@ function MockQuestions() {
       <h1 style={headingStyle}>Mock Interview</h1>
 
       <div style={cardStyle}>
-        <p style={questionStyle}>Questions :</p>
-        <textarea
-          rows="8"
-          style={textareaStyle}
-          value={answer}
-          onChange={(e) => setAnswer(e.target.value)}
-          placeholder="Type your answer here..."
-        />
+        {loading ? (
+          <p>Generating AI questions...</p>
+        ) : (
+          <pre style={{ whiteSpace: "pre-wrap" }}>{questions}</pre>
+        )}
       </div>
-
-      <button style={submitButtonStyle} onClick={handleSubmit}>
-        Submit
-      </button>
     </div>
   );
 }
-
 // Container: full page with background image, center content, no horizontal scroll
 const containerStyle = {
   minHeight: "100vh",

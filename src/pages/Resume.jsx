@@ -1,22 +1,58 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import bgImage from "../assets/background.jpg"; // background image
+import bgImage from "../assets/background.jpg";
+import axios from "axios";
 
 function Resume() {
   const navigate = useNavigate();
   const [fileName, setFileName] = useState("");
   const [hoverBrowse, setHoverBrowse] = useState(false);
   const [hoverSave, setHoverSave] = useState(false);
+  const [file, setFile] = useState(null);
 
   const handleUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) setFileName(file.name);
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setFileName(selectedFile.name);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!file) {
+      alert("Please upload a resume first");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("resume", file);
+    formData.append("user_id", localStorage.getItem("user_id"));
+
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:5000/upload-resume",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      alert(response.data.message);
+      navigate("/mock");
+
+    } catch (error) {
+      alert(error.response?.data?.message || "Upload failed");
+    }
   };
 
   return (
     <div style={containerStyle}>
       <div style={cardStyle}>
-        <h2 style={{ marginBottom: "30px", fontSize: "28px" }}>UPLOAD RESUME</h2>
+        <h2 style={{ marginBottom: "30px", fontSize: "28px" }}>
+          UPLOAD RESUME
+        </h2>
 
         <label
           htmlFor="resumeUpload"
@@ -30,14 +66,20 @@ function Resume() {
         >
           Browse File
         </label>
+
         <input
           id="resumeUpload"
           type="file"
+          accept=".pdf"
           onChange={handleUpload}
           style={{ display: "none" }}
         />
 
-        {fileName && <p style={{ marginTop: "15px", fontSize: "18px" }}>Uploaded: {fileName}</p>}
+        {fileName && (
+          <p style={{ marginTop: "15px", fontSize: "18px" }}>
+            Uploaded: {fileName}
+          </p>
+        )}
 
         <button
           style={{
@@ -47,7 +89,7 @@ function Resume() {
           }}
           onMouseEnter={() => setHoverSave(true)}
           onMouseLeave={() => setHoverSave(false)}
-          onClick={() => navigate("/dashboard")}
+          onClick={handleSave}
         >
           Save
         </button>
@@ -69,17 +111,17 @@ const containerStyle = {
 
 const cardStyle = {
   backgroundColor: "white",
-  padding: "60px 50px", // increased padding
-  borderRadius: "25px", // slightly more rounded
+  padding: "60px 50px",
+  borderRadius: "25px",
   textAlign: "center",
-  boxShadow: "0 12px 30px rgba(0,0,0,0.3)", // stronger shadow
-  minWidth: "500px", // bigger card width
+  boxShadow: "0 12px 30px rgba(0,0,0,0.3)",
+  minWidth: "500px",
 };
 
 const browseButtonStyle = {
   display: "inline-block",
-  padding: "16px 35px", // bigger button
-  fontSize: "18px", // larger text
+  padding: "16px 35px",
+  fontSize: "18px",
   borderRadius: "10px",
   backgroundColor: "#0077ff",
   color: "white",
@@ -92,7 +134,7 @@ const browseButtonStyle = {
 const saveButtonStyle = {
   display: "block",
   margin: "25px auto 0 auto",
-  padding: "16px 35px", // bigger save button
+  padding: "16px 35px",
   fontSize: "18px",
   borderRadius: "10px",
   border: "none",
